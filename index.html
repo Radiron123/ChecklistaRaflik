@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista kontrolna</title>
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #f4f6f8;
+    }
+    body {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        text-align: center;
+    }
+    h1 {
+        color: #222;
+        font-size: 1.8em;
+        margin-top: 15px;
+    }
+    .screen {
+        flex: 1;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    .card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 25px;
+        max-width: 500px;
+        width: 90%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .question {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        color: #333;
+        text-align: center;
+    }
+    .buttons {
+        display: flex;
+        gap: 15px;
+    }
+    button {
+        font-size: 1em;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: transform 0.1s ease, box-shadow 0.2s ease;
+    }
+    button:active {
+        transform: scale(0.97);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .yes {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .no {
+        background-color: #f44336;
+        color: white;
+    }
+    .start {
+        background-color: #2196F3;
+        color: white;
+    }
+    .retry {
+        background-color: #FF9800;
+        color: white;
+        margin-top: 15px;
+    }
+    .summary {
+        font-size: 1.4em;
+        font-weight: bold;
+        margin-top: 20px;
+    }
+    .emoji {
+        font-size: 2.5em;
+        margin-top: 10px;
+    }
+    footer {
+        padding: 10px;
+        font-size: 0.85em;
+        color: #555;
+    }
+</style>
+</head>
+<body>
+
+<h1>Lista kontrolna przed produkcją</h1>
+
+<!-- Ekran startowy -->
+<div class="screen" id="startScreen" style="display:flex;">
+    <div class="card">
+        <button class="start" onclick="startChecklist()">🚀 Rozpocznij</button>
+    </div>
+</div>
+
+<!-- Pytania -->
+<div class="screen" id="checklist">
+    <div class="card">
+        <div class="question" id="questionText"></div>
+        <div class="buttons">
+            <button class="yes" onclick="answer(true)">✅ TAK</button>
+            <button class="no" onclick="answer(false)">❌ NIE</button>
+        </div>
+    </div>
+</div>
+
+<!-- Podsumowanie -->
+<div class="screen" id="summary">
+    <div class="card" id="summaryContent"></div>
+</div>
+
+<footer>
+    Autor: Rafał Furas — Wszystkie prawa zastrzeżone
+</footer>
+
+<script>
+const questions = [
+    "Czy sprawdziłeś wersję programu z dokumentacją?",
+    "Czy sprawdziłeś kierunkowości komponentów w feederach?",
+    "Czy sprawdziłeś kierunkowości komponentów na PCB?",
+    "Czy sprawdziłeś poprawność pastowania PCB?",
+    "Czy sprawdziłeś times na feederach na maszynie?",
+    "Czy ustawiłeś odpowiedni profil na piecu oraz szerokość łańcucha?",
+    "Czy sprawdziłeś poprawność montażu płytki wzorcowej z checklistą montażową?",
+    "Czy operatorzy są gotowi do pracy?"
+];
+
+let current = 0;
+let allYes = true;
+
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(screen => screen.style.display = 'none');
+    document.getElementById(id).style.display = 'flex';
+}
+
+function startChecklist() {
+    current = 0;
+    allYes = true;
+    showScreen('checklist');
+    showQuestion();
+}
+
+function showQuestion() {
+    document.getElementById('questionText').textContent = questions[current];
+}
+
+function answer(isYes) {
+    if (!isYes) allYes = false;
+    current++;
+    if (current < questions.length) {
+        showQuestion();
+    } else {
+        showSummary();
+    }
+}
+
+function showSummary() {
+    const summaryDiv = document.getElementById('summaryContent');
+    if (allYes) {
+        summaryDiv.innerHTML = `
+            <div class='summary' style='color:green;'>✅ Wszystko gotowe do uruchomienia produkcji!</div>
+            <div class="emoji">😀</div>
+            <button class="retry" onclick="startChecklist()">🔄 Rozpocznij ponownie</button>
+        `;
+    } else {
+        summaryDiv.innerHTML = `
+            <div class='summary' style='color:red;'>⚠️ Nie wszystko zostało wykonane! Sprawdź ponownie.</div>
+            <div class="emoji">😞</div>
+            <button class="retry" onclick="startChecklist()">🔄 Rozpocznij ponownie</button>
+        `;
+    }
+    showScreen('summary');
+}
+</script>
+
+</body>
+</html>
